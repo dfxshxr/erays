@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from opcodes import *
 from bytecodes import *
 from instructions import *
@@ -15,7 +17,11 @@ import sys
 
 class Lifter(GraphBuilder):
 	def __init__(self, binary):
-		GraphBuilder.__init__(self, binary)
+		"""
+		初始化
+		:param binary:
+		"""
+		GraphBuilder.__init__(self, binary)  # 图构建器
 		# for func in self.external_functions.values():
 		# 	func.visualize_function()
 
@@ -29,6 +35,10 @@ class Lifter(GraphBuilder):
 		# self.__split_hub_blocks(func)
 
 	def __label_function_boundaries(self):
+		"""
+		标注函数边界
+		:return:
+		"""
 		# TODO: extend to include undetected callers ?
 		# maps callee_pair (callee_entry, callee_exit) to caller_pairs
 		self.__callee_pairs = dict()
@@ -49,6 +59,10 @@ class Lifter(GraphBuilder):
 					print("[WARNING] caller successor not unique %s" % caller_begin)
 
 	def __create_internal_functions(self):
+		"""
+		创建内部函数
+		:return:
+		"""
 		self.internal_functions = dict()
 		for callee_pair, caller_pairs in self.__callee_pairs.items():
 			# print(caller_pairs)
@@ -64,6 +78,12 @@ class Lifter(GraphBuilder):
 				actions[opcode] = func.action
 
 	def __create_internal_function(self, callee_pair, caller_pairs):
+		"""
+		创建内部函数
+		:param callee_pair: 调用对
+		:param caller_pairs: 被调用对
+		:return:
+		"""
 		possible_funcs = dict()
 		callee_begin, callee_end = callee_pair
 
@@ -95,6 +115,10 @@ class Lifter(GraphBuilder):
 		return func, caller_pairs
 
 	def __reduce_functions(self):
+		"""
+		# 约化/还原函数
+		:return:
+		"""
 		for func in self.get_all_functions():
 			self.__extract_internal_calls(func)
 			entry_id = func.entry_id
@@ -115,6 +139,11 @@ class Lifter(GraphBuilder):
 			self.internal_functions[func.signature] = func
 
 	def __extract_internal_calls(self, func):
+		"""
+		提取内部调用
+		:param func:
+		:return:
+		"""
 		callee_pairs = self.__get_present_pairs(func)
 		# print(callee_pairs)
 		for callee_pair, caller_pairs in callee_pairs.items():
@@ -124,6 +153,11 @@ class Lifter(GraphBuilder):
 				func.extract_intcall(callee_pair, caller_pair, opcode)
 
 	def __get_present_pairs(self, func):
+		"""
+		得到present对
+		:param func:
+		:return:
+		"""
 		graph = func.graph
 		callee_pairs = dict()
 		for callee_pair, caller_pairs in self.__callee_pairs.items():
@@ -152,6 +186,11 @@ class Lifter(GraphBuilder):
 		return callee_pairs
 
 	def __lift_function(self, func):
+		"""
+		lift（链接？） 函数
+		:param func:
+		:return:
+		"""
 
 		for block in func.graph:
 			str_id = block.get_id()
@@ -166,6 +205,12 @@ class Lifter(GraphBuilder):
 			func.graph.replace_block(block)
 
 	def __lift_bytecode_block(self, block, stack_size):
+		"""
+		lift（链接？） 字节码块
+		:param block:
+		:param stack_size:
+		:return:
+		"""
 		entry_addr = block.get_entry_address()
 		new_block = InstructionBlock(block.get_id(), entry_addr)
 		for bytecode in block:
@@ -179,6 +224,12 @@ class Lifter(GraphBuilder):
 
 	@staticmethod
 	def __lift_bytecode(bytecode, stack_size):
+		"""
+		lift（链接？） 字节码
+		:param bytecode:
+		:param stack_size:
+		:return:
+		"""
 		opcode = bytecode.opcode
 		address = bytecode.get_address()
 		delta, alpha = actions[opcode][:2]
@@ -187,7 +238,7 @@ class Lifter(GraphBuilder):
 		writes = to_stack_registers([stack_size - delta + i for i in range(alpha)])
 		instructions = list()
 
-		if opcode in swap_ops:
+		if opcode in swap_ops:  # 交换操作
 			read1 = [STACK_REGISTER + str(stack_size - delta)]
 			read2 = [STACK_REGISTER + str(stack_size - 1)]
 			instructions = [MoveInstruction("MOVE", read1, [SWAP_REGISTER], address),
@@ -197,16 +248,16 @@ class Lifter(GraphBuilder):
 			reads = [STACK_REGISTER + str(stack_size - delta)]
 			writes = [STACK_REGISTER + str(stack_size)]
 			instructions = [MoveInstruction("MOVE", reads, writes, address)]
-		elif opcode in push_ops:
+		elif opcode in push_ops:  # push操作
 			constant = bytecode.dependencies[0]
 			instructions = [MoveInstruction("MOVE", [constant], writes, address)]
 		elif opcode in bin_ops:
 			instructions = [BinOpInstruction(opcode, reads, writes, address)]
 		elif opcode in mono_ops:
 			instructions = [MonoOpInstruction(opcode, reads, writes, address)]
-		elif opcode == "MSTORE":
+		elif opcode == "MSTORE":  # 存储
 			instructions = [MstoreInstruction(opcode, reads, writes, address)]
-		elif opcode == "MLOAD":
+		elif opcode == "MLOAD":   # 调用
 			instructions = [MloadInstruction(opcode, reads, writes, address)]
 		elif opcode == "CALLDATALOAD":
 			instructions = [CallLoadInstruction(opcode, reads, writes, address)]
@@ -222,24 +273,41 @@ class Lifter(GraphBuilder):
 		return instructions, stack_size
 
 	def get_all_functions(self):
+		"""
+		得到所有函数
+		:return:
+		"""
 		return list(self.external_functions.values()) + \
 		       list(self.internal_functions.values())
 
 	def debug_callee_pairs(self):
+		"""
+		debug 被调用 对
+		:return:
+		"""
 		for callee_pair, caller_pairs in self.__callee_pairs.items():
 			print(callee_pair)
 			print(list(caller_pairs))
 			print("")
 
 	def debug_functions(self):
+		"""
+		debug函数
+		:return:
+		"""
 		for func in self.get_all_functions():
 			func.debug_function()
 		# func.visualize_function()
 
 	@staticmethod
 	def __split_hub_blocks(func):
-		graph = func.graph
-		resolver = func.resolver
+		"""
+		拆分集中的块
+		:param func:
+		:return:
+		"""
+		graph = func.graph  # 图形
+		resolver = func.resolver  # 分解器
 
 		for block_id in graph.get_block_ids():
 			block = graph[block_id]

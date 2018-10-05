@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from bytecodeblock import *
 from ceptions import *
 from opcodes import *
@@ -8,7 +10,14 @@ import sys, re
 
 
 class Disassembler(object):
+	"""
+	反汇编器
+	"""
 	def __init__(self, binary):
+		"""
+		反汇编器初始化
+		:param binary:
+		"""
 		if len(binary) == 0:
 			raise InputError("empty hex string")
 		binary += "00"
@@ -34,6 +43,11 @@ class Disassembler(object):
 		self.__simplify_assertions()
 
 	def __detect_swarm_hash(self, binary):
+		"""
+		检测swarm哈希
+		:param binary:
+		:return:
+		"""
 		binary_length = len(binary)
 		if binary_length % 2 != 0:
 			raise InputError("odd length binary")
@@ -46,6 +60,12 @@ class Disassembler(object):
 			self.swarm_hash_address = int(match.start() / 2)
 
 	def __decode_data(self, begin, end):
+		"""
+		解码数据
+		:param begin:
+		:param end:
+		:return:
+		"""
 		data = self.raw_bytes[begin: end]
 		data = [hex(d)[2:] for d in data]
 		data = [d.zfill(2) for d in data]
@@ -56,6 +76,7 @@ class Disassembler(object):
 			return 0
 
 	def __decode_bytecodes(self):
+		"""解码字节码"""
 		address = 0
 		while address < self.swarm_hash_address:
 			raw_byte = self.raw_bytes[address]
@@ -78,6 +99,13 @@ class Disassembler(object):
 
 	@staticmethod
 	def decode_bytecode(opcode, address, raw_byte):
+		"""
+		解码字节码
+		:param opcode:
+		:param address:
+		:param raw_byte:
+		:return:
+		"""
 		if opcode in push_ops:
 			bytecode = PushByteCode(opcode, raw_byte, address)
 		elif opcode in bin_ops:
@@ -89,6 +117,10 @@ class Disassembler(object):
 		return bytecode
 
 	def __create_basic_blocks(self):
+		"""
+		构建基本块
+		:return:
+		"""
 		header_addresses, split = set(), False
 		for address in sorted(self.bytecodes):
 			bytecode = self.bytecodes[address]
@@ -114,6 +146,10 @@ class Disassembler(object):
 		self.__basic_blocks[basic_block.get_id()] = basic_block
 
 	def __simplify_assertions(self):
+		"""
+		简化断言
+		:return:
+		"""
 		block_ids = sorted(self.__basic_blocks.keys())
 		for i in range(len(block_ids) - 1):
 			id_0, id_1 = block_ids[i:i+2]
@@ -124,22 +160,44 @@ class Disassembler(object):
 				block_0.insert_assert()
 
 	def debug_bytecodes(self):
+		"""
+		debug字节码
+		:return:
+		"""
 		for block_id in self.__basic_blocks:
 			basic_block = self.__basic_blocks[block_id]
 			basic_block.debug_block()
 
 	def get_raw_bytes(self, b=0, e=-1):
+		"""
+		得到原始字节
+		:param b:
+		:param e:
+		:return:
+		"""
 		if e == -1:
 			return self.raw_bytes[b::]
 		return self.raw_bytes[b:e]
 
 	def get_swarm_hash_bytes(self):
+		"""
+		获取swarm哈希字节
+		:return:
+		"""
 		return self.raw_bytes[self.swarm_hash_address:]
 
 	def get_blocks(self):
+		"""
+		获取基本块
+		:return:
+		"""
 		return self.__basic_blocks
 
 	def get_opcode_bytes(self):
+		"""
+		获取操作码字节
+		:return:
+		"""
 		opcode_bytes = list()
 		for address in sorted(self.bytecodes):
 			instruction = self.bytecodes[address]
@@ -150,6 +208,11 @@ class Disassembler(object):
 		return opcode_bytes
 
 	def get_block_trace(self, program_counters):
+		"""
+		得到块跟踪
+		:param program_counters:
+		:return:
+		"""
 		block_trace = [self.__addresses[pc] for pc in program_counters]
 		block_trace = [x[0] for x in groupby(block_trace)]
 		return block_trace

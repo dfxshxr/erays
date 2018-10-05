@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from structures import InternalFunction
 from lifter import Lifter
 from blockstate import ConstantState
@@ -13,6 +15,11 @@ import sys, math
 
 
 def apply_peephole_optimizations(func):
+	"""
+	应用窥视孔优化
+	:param func:
+	:return:
+	"""
 	for block in func.graph:
 		__order_operands(block)
 		__size_one_rewrites(block)
@@ -22,6 +29,11 @@ def apply_peephole_optimizations(func):
 
 
 def __order_operands(block):
+	"""
+	排序操作数
+	:param block:
+	:return:
+	"""
 	for instruction in block:
 		if instruction.opcode not in {"AND", "ADD", "MUL", "OR", "EQ", "XOR"}:
 			continue
@@ -43,6 +55,13 @@ def __size_one_rewrites(block):
 
 
 def __remove_self_assign(i, instruction, block):
+	"""
+	去掉自我分配
+	:param i:
+	:param instruction:
+	:param block:
+	:return:
+	"""
 	if instruction.opcode == "MOVE" and \
 			(instruction.reads[0] == instruction.writes[0]):
 		block.set_nop_instruction(i)
@@ -52,6 +71,13 @@ def __remove_self_assign(i, instruction, block):
 
 
 def __fold_constant(i, instruction, block):
+	"""
+	折叠常数
+	:param i:
+	:param instruction:
+	:param block:
+	:return:
+	"""
 	opcode = instruction.opcode
 	constants = instruction.get_constants()
 	if not constants:
@@ -73,6 +99,11 @@ def __fold_constant(i, instruction, block):
 
 
 def __rewrite_word_add(instruction):
+	"""
+	重写ADD
+	:param instruction:
+	:return:
+	"""
 	if instruction.opcode != "ADD":
 		return
 	if instruction.reads[0] != WORD_MASK:
@@ -83,6 +114,13 @@ def __rewrite_word_add(instruction):
 
 
 def __rewrite_shift(i, instruction, block):
+	"""
+	重写shift
+	:param i:
+	:param instruction:
+	:param block:
+	:return:
+	"""
 	opcode = instruction.opcode
 	address = instruction.address
 	if opcode not in {"DIV", "MUL"}:
@@ -110,6 +148,13 @@ def __rewrite_shift(i, instruction, block):
 
 
 def __rewrite_move(i, instruction, block):
+	"""
+	重写move
+	:param i:
+	:param instruction:
+	:param block:
+	:return:
+	"""
 	opcode = instruction.opcode
 	reads = instruction.reads
 	writes = instruction.writes
@@ -152,6 +197,14 @@ def __size_two_rewrites(block):
 
 
 def __remove_double_mask(i, instruction_0, instruction_1, block):
+	"""
+	去除双重掩码
+	:param i:
+	:param instruction_0:
+	:param instruction_1:
+	:param block:
+	:return:
+	"""
 	if instruction_0.opcode != "AND" or \
 		instruction_1.opcode != "AND":
 		return
@@ -169,6 +222,14 @@ def __remove_double_mask(i, instruction_0, instruction_1, block):
 
 
 def __remove_address_mask(i, instruction_0, instruction_1, block):
+	"""
+	去除地址掩码
+	:param i:
+	:param instruction_0:
+	:param instruction_1:
+	:param block:
+	:return:
+	"""
 	if instruction_0.opcode not in {"CALLER", "ADDRESS"} or \
 		instruction_1.opcode != "AND":
 		return
@@ -192,6 +253,14 @@ def __remove_doube_iszero(i, instruction_0, instruction_1, block):
 
 
 def __rewrite_negate_ops(i, instruction_0, instruction_1, block):
+	"""
+	重写否定操作
+	:param i:
+	:param instruction_0:
+	:param instruction_1:
+	:param block:
+	:return:
+	"""
 	opcode = instruction_0.opcode
 	if instruction_0.opcode not in negate_ops or \
 		instruction_1.opcode != "ISZERO" or \
@@ -286,6 +355,7 @@ def can_reach(d, begin, end, instructions):
 
 
 class Optimizer(Lifter):
+	"""优化器"""
 	def __init__(self, binary):
 		Lifter.__init__(self, binary)
 		# return
@@ -295,6 +365,11 @@ class Optimizer(Lifter):
 			self.__optimize_function(func)
 
 	def __optimize_function(self, func):
+		"""
+		优化函数
+		:param func:
+		:return:
+		"""
 		self.change = True
 		while self.change:
 			self.change = False

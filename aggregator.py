@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from blockstate import ExpressionState
 from optimizer import Optimizer
 from expressionblock import ExpressionBlock
@@ -8,6 +10,13 @@ import sys
 
 
 def get_single_usage(begin, expressions, live):
+	"""
+	得到单次用法
+	:param begin:
+	:param expressions:
+	:param live:
+	:return:
+	"""
 	target_expression = expressions[begin]
 	write = target_expression.get_write_registers().pop()
 
@@ -32,6 +41,13 @@ def get_single_usage(begin, expressions, live):
 
 
 def is_valid_at(expressions, begin, end):
+	"""
+	表达式是否有效
+	:param expressions:
+	:param begin:
+	:param end:
+	:return:
+	"""
 	target_expression = expressions[begin]
 	for expression in expressions[begin + 1:end]:
 		if expression.invalidates(target_expression):
@@ -40,12 +56,18 @@ def is_valid_at(expressions, begin, end):
 
 
 class Aggregator(Optimizer):
+	"""聚合"""
 	def __init__(self, binary):
-		Optimizer.__init__(self, binary)
+		Optimizer.__init__(self, binary)  # 初始化优化器
 		for func in self.get_all_functions():
 			self.__convert_function(func)
 
 	def __convert_function(self, func):
+		"""
+		转换函数
+		:param func:
+		:return:
+		"""
 		for block in func.graph:
 			new_block = ExpressionBlock(block.get_id(), block.get_entry_address())
 			new_block.exit_stack_size = block.exit_stack_size
@@ -73,9 +95,13 @@ class Aggregator(Optimizer):
 			# 	block.debug_block()
 			# 	print(live)
 
-
 	@staticmethod
 	def __convert_instruction(instruction):
+		"""
+		转换指令
+		:param instruction: 指令
+		:return:
+		"""
 		opcode = instruction.opcode
 		reads = instruction.reads
 		writes = instruction.writes
@@ -112,6 +138,11 @@ class Aggregator(Optimizer):
 
 	@staticmethod
 	def __aggregate_expressions(block):
+		"""
+		聚合表达式
+		:param block:
+		:return:
+		"""
 		table = ExpressionState()
 		for expression in block:
 			table.apply_mapping(expression)
@@ -119,6 +150,12 @@ class Aggregator(Optimizer):
 
 	@staticmethod
 	def __aggregate_single(block, live):
+		"""
+		聚合单个？
+		:param block:
+		:param live:
+		:return:
+		"""
 		expressions = block.get_items()
 
 		for i, expression in enumerate(expressions):
@@ -144,6 +181,12 @@ class Aggregator(Optimizer):
 
 	@staticmethod
 	def __eliminate_dead_expression(block, out):
+		"""
+		消除死亡表达？
+		:param block:
+		:param out:
+		:return:
+		"""
 		change = False
 
 		new_expressions = list()
@@ -165,8 +208,13 @@ class Aggregator(Optimizer):
 		# block.debug_block()
 
 	def visualize_functions(self):
+		"""
+		可视化功能
+		:return:
+		"""
 		for func in self.get_all_functions():
 			func.visualize_function()
+
 
 if __name__ == "__main__":
 	input_file = open(sys.argv[1])
@@ -179,4 +227,3 @@ if __name__ == "__main__":
 		a.debug_functions()
 	elif "-v" in sys.argv:
 		a.visualize_functions()
-	

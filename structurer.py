@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from aggregator import Aggregator
 from structures import *
 
@@ -5,23 +7,33 @@ import sys
 
 
 class Structurer(Aggregator):
+	"""构建器"""
 	def __init__(self, binary):
-		Aggregator.__init__(self, binary)
-		for func in self.get_all_functions():
+		"""
+		构建器初始化
+		:param binary:字节码
+		"""
+		Aggregator.__init__(self, binary)  # 聚合初始化
+		for func in self.get_all_functions():  # 遍历函数
 			self.__analyze_function(func)
 
 	def __analyze_function(self, func):
-		# if func.signature != 0xd9f5aed:
+		"""
+		分析函数
+		:param func:函数
+		:return:
+		"""
+		# if func.signature != 0xd9f5aed:  # mixGenes(uint256,uint256,uint256)
 		# 	return
 		# func.visualize_function()
 
 		graph = func.graph
-		if self.__has_indirect_jumps(graph):
+		if self.__has_indirect_jumps(graph):  # 如果有间接跳转
 			return
 
-		sorted_ids = graph.depth_first_search(func.entry_id)
+		sorted_ids = graph.depth_first_search(func.entry_id)  # 深度优先搜索
 		for block_id in sorted_ids:
-			self.__match_structures(block_id, graph)
+			self.__match_structures(block_id, graph)  # 匹配结构
 
 		entry_id = func.entry_id
 		for block in graph:
@@ -29,9 +41,14 @@ class Structurer(Aggregator):
 			if result is not None:
 				func.entry_id = block.get_id()
 
-		func.visualize_function()
+		func.visualize_function()  # 可视化函数
 
 	def __has_indirect_jumps(self, graph):
+		"""
+		有间接跳转
+		:param graph:图
+		:return:Boolean
+		"""
 		indirect_jumps = set()
 		for block in graph:
 			block_id = block.get_id()
@@ -41,6 +58,12 @@ class Structurer(Aggregator):
 		return len(indirect_jumps) != 0
 
 	def __match_structures(self, block_id, graph):
+		"""
+		匹配结构
+		:param block_id:块编号
+		:param graph: 图
+		:return:
+		"""
 		if not graph.has_block(block_id):
 			return
 		original_id, cur_id = block_id, -1
@@ -52,6 +75,12 @@ class Structurer(Aggregator):
 			block_id = self.__match_loop(block_id, graph)
 
 	def __match_sequence(self, a0, graph):
+		"""
+		匹配序列
+		:param a0:
+		:param graph:
+		:return:
+		"""
 		sequence = [a0]
 		prev_id = a0
 		while True:
@@ -80,6 +109,12 @@ class Structurer(Aggregator):
 		return a0
 
 	def __match_ifthen(self, a0, graph):
+		"""
+		匹配 ifthen
+		:param a0:
+		:param graph:
+		:return:
+		"""
 		suc_ids = graph.get_dual_successors(a0)
 		if suc_ids is None:
 			return a0
@@ -97,6 +132,12 @@ class Structurer(Aggregator):
 		return new_id
 
 	def __match_ifthenelse(self, a0, graph):
+		"""
+		匹配 ifthenelse
+		:param a0:
+		:param graph:
+		:return:
+		"""
 		suc_ids = graph.get_dual_successors(a0)
 		if suc_ids is None:
 			return a0
@@ -117,6 +158,12 @@ class Structurer(Aggregator):
 		return new_id
 
 	def __match_loop(self, a0, graph):
+		"""
+		匹配循环
+		:param a0:
+		:param graph:
+		:return:
+		"""
 		suc_ids = graph.get_dual_successors(a0)
 		if suc_ids is None:
 			return a0
@@ -136,16 +183,22 @@ class Structurer(Aggregator):
 		return new_id
 
 	def visualize_functions(self):
+		"""
+		函数可视化
+		:return:
+		"""
 		for func in self.get_all_functions():
 			func.visualize_function()
 
 
 if __name__ == "__main__":
+	"""程序主入口"""
 	input_file = open(sys.argv[1])
 	line = input_file.readline().strip()
 	if " " in line:
 		line = line.split(" ")[1]
 	input_file.close()
+	"""将字节码读入构建器"""
 	a = Structurer(line)
 	if "-v" in sys.argv:
 		a.visualize_functions()
