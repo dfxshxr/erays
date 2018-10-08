@@ -56,9 +56,9 @@ class InstructionBlock:
 	def debug_block(self, depth=0):
 		print("\nblock_%d" % self.get_id())
 		# self.debug_phi_functions()
-		print(self.__entry_address)
+		print(hex(self.__entry_address))
 		for instruction in self.__instructions:
-			print(str(instruction.address) + "\t" + str(instruction).lower())
+			print(hex(instruction.address) + "\t" + str(instruction).lower())
 		# print(" ".join(self.exit_registers))
 
 	def get_instructions(self):

@@ -51,7 +51,7 @@ class ExpressionBlock:
 
 	def debug_block(self, depth=0):
 		prefix = get_prefix(depth)
-		print(prefix + str(self.__block_id))
+		print(prefix + "block_"+str(self.__block_id))
 		print(prefix + hex(self.get_entry_address()))
 		for i, expression in enumerate(self.__expressions):
 			print(prefix + str(i) + "\t" + str(expression).lower())

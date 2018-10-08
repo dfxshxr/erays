@@ -199,10 +199,17 @@ class Structurer(Aggregator):
 		for func in self.get_all_functions():
 			func.visualize_function()
 
+	def debug_functions(self):
+		"""
+		debug函数
+		:return:
+		"""
+		for func in self.get_all_functions():
+			func.debug_function()
 
 if __name__ == "__main__":
 	LOG_FORMAT = "%(filename)s:%(lineno)d %(levelname)s %(funcName)s: %(message)s"
-	logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+	# logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 
 	"""程序主入口"""
 	input_file = open(sys.argv[1])
@@ -217,3 +224,5 @@ if __name__ == "__main__":
 		a.visualize_functions()
 	if "-v" in sys.argv:
 		a.visualize_contract("5.Structurer.pdf")
+	if "-d" in sys.argv:
+		a.debug_functions()
