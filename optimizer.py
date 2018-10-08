@@ -12,7 +12,7 @@ from baseexecutor import execute_binop, execute_monop
 from instructions import MoveInstruction, Instruction
 
 import sys, math
-
+import logging
 
 def apply_peephole_optimizations(func):
 	"""
@@ -357,6 +357,7 @@ def can_reach(d, begin, end, instructions):
 class Optimizer(Lifter):
 	"""优化器"""
 	def __init__(self, binary):
+		logging.info("优化器初始化")
 		Lifter.__init__(self, binary)
 		# return
 		self.__debug = False
@@ -370,6 +371,7 @@ class Optimizer(Lifter):
 		:param func:
 		:return:
 		"""
+		logging.info("优化器：优化函数："+'{:#x}'.format(func.signature))
 		self.change = True
 		while self.change:
 			self.change = False
@@ -381,11 +383,13 @@ class Optimizer(Lifter):
 			self.__eliminate_dead_instructions(func)
 
 	def __propagate_constant_values(self, func):
+		# logging.info("优化器：传播常数值")
 		self.__outs = dict()
 		self.__compute_constant_states(func)
 		self.__apply_constant_propagation(func)
 
 	def __compute_constant_states(self, func):
+		# logging.info("优化器：计算常数状态")
 		graph = func.graph
 		for block in graph:
 			block_id = block.get_id()
@@ -409,6 +413,7 @@ class Optimizer(Lifter):
 					change = True
 
 	def __apply_constant_propagation(self, func):
+		# logging.info("优化器：应用常数传播")
 		graph = func.graph
 		for block in graph:
 			block_id = block.get_id()
@@ -422,6 +427,7 @@ class Optimizer(Lifter):
 				before.add_mapping(instruction)
 
 	def get_liveness_states(self, func):
+		# logging.info("优化器：获得活跃度状态")
 		self.__outs = dict()
 		self._uses, self._defs = dict(), dict()
 		self.__compute_liveness_states(func)
@@ -431,6 +437,7 @@ class Optimizer(Lifter):
 		return self.__outs
 
 	def __eliminate_dead_instructions(self, func):
+		# logging.info("优化器：消除死亡指令")
 		self.__outs = dict()
 		self._uses, self._defs = dict(), dict()
 		self.__compute_liveness_states(func)
@@ -440,6 +447,7 @@ class Optimizer(Lifter):
 		self.__apply_instruction_elimination(func)
 
 	def __compute_liveness_states(self, func):
+		#  logging.info("优化器：计算活跃状态")
 		graph = func.graph
 		for block in graph:
 			block_id = block.get_id()
@@ -465,6 +473,7 @@ class Optimizer(Lifter):
 			out.add("$m")
 
 	def __compute_use_def(self, block):
+		# logging.info("优化器：计算使用def")
 		block_id = block.get_id()
 		d, u = set(), set()
 		for instruction in block:
@@ -477,6 +486,7 @@ class Optimizer(Lifter):
 		self._uses[block_id] = u
 
 	def __apply_instruction_elimination(self, func):
+		# logging.info("优化器：应用指令消除")
 		# change = False
 		graph = func.graph
 		for block in graph:
@@ -500,11 +510,13 @@ class Optimizer(Lifter):
 			block.set_instructions(new_instructions)
 
 	def __propagate_copy_instructions(self, func):
+		# logging.info("优化器：传播复制指令")
 		self.__outs = dict()
 		self.__compute_copy_states(func)
 		self.__apply_copy_propagation(func)
 
 	def __compute_copy_states(self, func):
+		# logging.info("优化器：计算复制状态")
 		graph = func.graph
 		for block in graph:
 			block_id = block.get_id()
@@ -528,6 +540,7 @@ class Optimizer(Lifter):
 					change = True
 
 	def __apply_copy_propagation(self, func):
+		# logging.info("优化器：应用复制传播")
 		graph = func.graph
 		for block in graph:
 			block_id = block.get_id()
@@ -552,3 +565,5 @@ if __name__ == "__main__":
 	a = Optimizer(line)
 	if "-d" in sys.argv:
 		a.debug_functions()
+	if "-v" in sys.argv:
+		a.visualize_contract("3.Optimizer.pdf")

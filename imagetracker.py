@@ -1,5 +1,11 @@
+# -*- coding: utf-8 -*-
+
+
 class ImageTracker(object):
 	def __init__(self):
+		"""
+		图像跟踪器初始化
+		"""
 		self.images = dict()
 
 	def mark_observed_image(self, cur_id, image):

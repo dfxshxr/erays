@@ -1,9 +1,19 @@
+# -*- coding: utf-8 -*-
+
 from opcodes import mono_ops
 from opcodes import bin_ops
-
+import logging
 
 class ByteCode(object):
 	def __init__(self, opcode, raw_byte, major_ad, minor_ad=0):
+		"""
+		字节码实体
+		:param opcode:
+		:param raw_byte:
+		:param major_ad:
+		:param minor_ad:
+		"""
+		# logging.info("ByteCode初始化")
 		self.opcode = opcode
 		self.raw_byte = raw_byte
 		self.__major_ad = major_ad

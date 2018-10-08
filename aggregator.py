@@ -7,7 +7,7 @@ from expressions import *
 from instructions import *
 from opcodes import special_ops
 import sys
-
+import logging
 
 def get_single_usage(begin, expressions, live):
 	"""
@@ -58,6 +58,7 @@ def is_valid_at(expressions, begin, end):
 class Aggregator(Optimizer):
 	"""聚合"""
 	def __init__(self, binary):
+		logging.info("聚合器初始化")
 		Optimizer.__init__(self, binary)  # 初始化优化器
 		for func in self.get_all_functions():
 			self.__convert_function(func)
@@ -68,6 +69,7 @@ class Aggregator(Optimizer):
 		:param func:
 		:return:
 		"""
+		logging.info("聚合器：转换函数：" + '{:#x}'.format(func.signature))
 		for block in func.graph:
 			new_block = ExpressionBlock(block.get_id(), block.get_entry_address())
 			new_block.exit_stack_size = block.exit_stack_size
@@ -225,5 +227,5 @@ if __name__ == "__main__":
 	a = Aggregator(line)
 	if "-d" in sys.argv:
 		a.debug_functions()
-	elif "-v" in sys.argv:
-		a.visualize_functions()
+	if "-v" in sys.argv:
+		a.visualize_contract("4.Aggregator.pdf")

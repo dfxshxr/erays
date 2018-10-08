@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from controlgraph import *
 from ceptions import DependencyError
 from ceptions import JumpAddressError
@@ -9,6 +11,11 @@ from opcodes import *
 
 class Interpreter(object):
 	def __init__(self, basic_blocks, resolver):
+		"""
+		解释器初始化
+		:param basic_blocks:
+		:param resolver:
+		"""
 		self.basic_blocks = basic_blocks
 		self.resolver = resolver
 		self._poison_ids = set()
@@ -32,6 +39,11 @@ class Interpreter(object):
 
 class BasicInterpreter(Interpreter):
 	def __init__(self, basic_blocks, resolver):
+		"""
+		基本解释器初始化
+		:param basic_blocks:
+		:param resolver:
+		"""
 		Interpreter.__init__(self, basic_blocks, resolver)
 		self.__image_trackers = None
 		self.__graph = ControlGraph()
@@ -40,6 +52,12 @@ class BasicInterpreter(Interpreter):
 		self.__max_path_len = len(basic_blocks)
 
 	def explore_control_flow_graph(self, cur_id, tracker):
+		"""
+		探索控制流程图
+		:param cur_id:
+		:param tracker:
+		:return:
+		"""
 		# print(cur_id, tracker)
 		self.__image_trackers = ImageTracker()
 
@@ -48,6 +66,13 @@ class BasicInterpreter(Interpreter):
 		return self.__graph, self.__image_trackers
 
 	def __create_execution_path(self, cur_id, pre_tracker, path):
+		"""
+		创建执行路径
+		:param cur_id:
+		:param pre_tracker:
+		:param path:
+		:return:
+		"""
 		if self.__image_trackers.mark_observed_image(cur_id, pre_tracker):
 			return
 
@@ -72,6 +97,13 @@ class BasicInterpreter(Interpreter):
 			self.__create_natural_execution_path(cur_block, cpy_tracker, path)
 
 	def __create_jump_execution_path(self, cur_block, tracker, path):
+		"""
+		创建跳转执行路径
+		:param cur_block:
+		:param tracker:
+		:param path:
+		:return:
+		"""
 		exit_instruction = cur_block.get_exit_bytecode()
 		cur_id = cur_block.get_id()
 		try:
@@ -85,6 +117,13 @@ class BasicInterpreter(Interpreter):
 		self.__create_execution_path(suc_id, tracker, path + [cur_id])
 
 	def __add_to_ambiguous_blocks(self, cur_id, suc_id, push_id):
+		"""
+		添加歧义块
+		:param cur_id:
+		:param suc_id:
+		:param push_id:
+		:return:
+		"""
 		if push_id == cur_id:
 			return
 		if cur_id not in self.ambiguous_blocks:
@@ -92,6 +131,13 @@ class BasicInterpreter(Interpreter):
 		self.ambiguous_blocks[cur_id][push_id] = suc_id
 
 	def __create_natural_execution_path(self, cur_block, tracker, path):
+		"""
+		创建自然执行路径
+		:param cur_block:
+		:param tracker:
+		:param path:
+		:return:
+		"""
 		suc_id = self.resolver.get_natural_successor(cur_block.get_id())
 		if suc_id is None:
 			return
@@ -106,6 +152,11 @@ class BasicInterpreter(Interpreter):
 		return self.__end_paths[0]
 
 	def compute_stack_actions(self, str_ids):
+		"""
+		计算堆栈动作
+		:param str_ids:
+		:return:
+		"""
 		total_delta, stack_size = 0, 0
 		for str_id in str_ids:
 			basic_block = self.basic_blocks[str_id]
@@ -123,6 +174,11 @@ class BasicInterpreter(Interpreter):
 
 class DuplicateInterpreter(Interpreter):
 	def __init__(self, basic_blocks, naturals):
+		"""
+		重复解释器
+		:param basic_blocks:
+		:param naturals:
+		"""
 		Interpreter.__init__(self, basic_blocks, None)
 		self.resolver = DuplicateResolver(basic_blocks, naturals)
 		self.__graph = None

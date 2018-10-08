@@ -1,14 +1,20 @@
+# -*- coding: utf-8 -*-
+
 from bytecodeblock import *
+from expressionblock import ExpressionBlock
 
 from copy import deepcopy
 from operator import attrgetter
-
+import logging
 
 DUMMY_BLOCK_ID = -42
 
 
 class ControlGraph(object):
 	def __init__(self):
+		"""
+		CFG控制流图初始化
+		"""
 		self.basic_blocks = dict()
 		self.outgoing_edges = dict()
 		self.incoming_edges = dict()
@@ -27,6 +33,11 @@ class ControlGraph(object):
 		return len(self.basic_blocks)
 
 	def mark_entry_block(self, block_id):
+		"""
+		标记入口块
+		:param block_id:
+		:return:
+		"""
 		if block_id in self.basic_blocks:
 			self.entry_block_ids.add(block_id)
 
@@ -475,7 +486,7 @@ class ControlGraph(object):
 			block = self.basic_blocks[cur_id]
 			label = block.dot_format_block(0).lower()
 
-			label = hex(block.get_entry_address()) + "\l--------\l" + label
+			label = hex(block.get_entry_address()) + "\l--------\l"  + label
 			# print(label.lower())
 			dot_file.write(str(cur_id) + "[label=\"%s\"];\n" % label)
 			suc_ids = self.get_successor_ids(cur_id)
@@ -487,6 +498,49 @@ class ControlGraph(object):
 				dot_file.write(line)
 		dot_file.write("}\n")
 		dot_file.close()
+
+
+	def visualize_contract_dot(self, file_name, type=None, interal=None):
+		dot_file = open(file_name, 'w')
+		dot_file.write("digraph {\nnode [shape=rect,fontname=\"Courier\"];\n")
+		if interal:
+			dot_file.write("labelloc=\"t\";\nfontname=\"Courier\"\n")
+			r, w = interal
+			r = "args " + " ".join(r) + "\l"
+			w = "rets " + " ".join(w) + "\l"
+
+			dot_file.write("label=\"%s\l%s\";\n" % (r, w))
+
+		for cur_id in self.basic_blocks:
+			# if cur_id in self.marked_block_ids:
+			# 	color = self.marked_block_ids[cur_id]
+			# 	dot_file.write("%d [style=filled, fillcolor=%s]\n" % (cur_id, color))
+			# else:
+			block = self.basic_blocks[cur_id]
+			results = []
+			label = ""
+
+			if type == "1.GraphBuilder.pdf":
+				for bytecode in block:
+					label = label + (str(bytecode))+"\l"
+					results.append(bytecode)
+
+			if type == "2.Lifter.pdf":
+				a=0
+
+			label = str(block.get_id()) + "("+hex(block.get_entry_address()) + ")\l--------\l" + label
+			# print(label.lower())
+			dot_file.write(str(cur_id) + "[label=\"%s\"];\n" % label)
+			suc_ids = self.get_successor_ids(cur_id)
+			for suc_id in suc_ids:
+				if (cur_id, suc_id) not in self.__indirect_jumps:
+					line = "%d -> %d\n" % (cur_id, suc_id)
+				else:
+					line = "%d -> %d[color=red]\n" % (cur_id, suc_id)
+				dot_file.write(line)
+		dot_file.write("}\n")
+		dot_file.close()
+
 
 	def simplify(self, skip_blocks, resolver=None):
 		merged = dict()

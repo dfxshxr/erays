@@ -1,16 +1,22 @@
+# -*- coding: utf-8 -*-
+
 from instructions import to_stack_registers
 from opcodes import INTERNAL_CALL_OPCODE
 from expressionblock import ExpressionBlock
 
 import os
-
+import logging
 
 def get_prefix(depth):
 	return "  " * depth
 
 
 class ExternalFunction(object):
+	"""
+	外部函数
+	"""
 	def __init__(self, signature, graph, tracker, entry_exit):
+		logging.info("结构体-外部函数初始化："+'{:#x}'.format(signature))
 		self.signature = signature
 		self.graph = graph
 		self.tracker = tracker
@@ -158,12 +164,14 @@ class ExternalFunction(object):
 		return block_hashes
 
 	def visualize_function(self):
+		logging.info("结构体-外部函数：画图")
 		if not os.path.exists("temp/"):
 			os.makedirs("temp/")
 		self.graph.visualize("temp/temp.dot")
 		os.system("dot -Tpdf temp/temp.dot -o temp/0x%x.pdf" % self.signature)
 
 	def debug_function(self, block_id=None):
+		logging.info("结构体-外部函数：debug")
 		if block_id:
 			self.graph[block_id].debug_block()
 			return
@@ -176,7 +184,11 @@ class ExternalFunction(object):
 
 
 class InternalFunction(ExternalFunction):
+	"""
+	内部函数
+	"""
 	def __init__(self, signature, graph, tracker, entry_exit, action):
+		logging.info("结构体-内部函数初始化")
 		ExternalFunction.__init__(self, signature, graph, tracker, entry_exit)
 		self.action = action
 
@@ -202,6 +214,7 @@ class InternalFunction(ExternalFunction):
 		return prefix + ", ".join(self.reads) + "\n" + ", ".join(self.writes)
 
 	def visualize_function(self):
+		logging.info("结构体-内部函数：画图")
 		if not os.path.exists("temp/"):
 			os.makedirs("temp/")
 		self.graph.visualize("temp/temp.dot", (self.reads, self.writes))
@@ -210,6 +223,7 @@ class InternalFunction(ExternalFunction):
 
 class Structure:
 	def __init__(self, block_id, suc_address, blocks):
+		logging.info("结构体初始化"+'block_id：{:#x} '.format(block_id)+'suc_address：{:#x} '.format(suc_address))
 		self.__block_id = block_id
 		self.__exit_address = suc_address
 		self.blocks = blocks
@@ -240,6 +254,7 @@ class Structure:
 
 class Seq(Structure):
 	def __init__(self, block_id, suc_address, blocks):
+		logging.info("序列初始化" + 'block_id：{:#x} '.format(block_id) + 'suc_address：{:#x} '.format(suc_address))
 		Structure.__init__(self, block_id, suc_address, blocks)
 		for b in blocks[:-1]:
 			if isinstance(b, ExpressionBlock):
@@ -264,6 +279,7 @@ class Seq(Structure):
 
 class IfThen(Structure):
 	def __init__(self, block_id, suc_address, a0, a1):
+		logging.info("IfThen初始化" + 'block_id：{:#x} '.format(block_id) + 'suc_address：{:#x} '.format(suc_address))
 		Structure.__init__(self, block_id, suc_address, [a0, a1])
 		if isinstance(a1, ExpressionBlock):
 			a1.remove_end_jump()
@@ -287,6 +303,7 @@ class IfThen(Structure):
 
 class IfThenElse(Structure):
 	def __init__(self, block_id, suc_address, a0, a1, a2):
+		logging.info("IfThenElse初始化" + 'block_id：{:#x} '.format(block_id) + 'suc_address：{:#x} '.format(suc_address))
 		Structure.__init__(self, block_id, suc_address, [a0, a1, a2])
 		if isinstance(a1, ExpressionBlock):
 			a1.remove_end_jump()
@@ -316,6 +333,7 @@ class IfThenElse(Structure):
 
 class Loop(Structure):
 	def __init__(self, block_id, suc_address, a0, a1):
+		logging.info("循环初始化" + 'block_id：{:#x} '.format(block_id) + 'suc_address：{:#x} '.format(suc_address))
 		Structure.__init__(self, block_id, suc_address, [a0, a1])
 		# print(a1)
 		if isinstance(a1, ExpressionBlock) or isinstance(a1, Seq):

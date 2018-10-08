@@ -7,7 +7,7 @@ from bytecodes import *
 
 from itertools import groupby
 import sys, re
-
+import logging
 
 class Disassembler(object):
 	"""
@@ -18,6 +18,7 @@ class Disassembler(object):
 		反汇编器初始化
 		:param binary:
 		"""
+		logging.info("反汇编器初始化")
 		if len(binary) == 0:
 			raise InputError("empty hex string")
 		binary += "00"
@@ -44,7 +45,7 @@ class Disassembler(object):
 
 	def __detect_swarm_hash(self, binary):
 		"""
-		检测swarm哈希
+		检测swarm哈希 contract-metadata
 		:param binary:
 		:return:
 		"""
@@ -77,6 +78,7 @@ class Disassembler(object):
 
 	def __decode_bytecodes(self):
 		"""解码字节码"""
+		logging.info("反汇编器：解码字节码")
 		address = 0
 		while address < self.swarm_hash_address:
 			raw_byte = self.raw_bytes[address]
@@ -84,6 +86,7 @@ class Disassembler(object):
 			if raw_byte in opcodes:
 				opcode = opcodes[raw_byte]
 			else:
+				logging.info("反汇编器：" + 'GARBAGE：{:#x} '.format(raw_byte))
 				opcode = "GARBAGE"
 
 			bytecode = self.decode_bytecode(opcode, address, raw_byte)
@@ -100,7 +103,7 @@ class Disassembler(object):
 	@staticmethod
 	def decode_bytecode(opcode, address, raw_byte):
 		"""
-		解码字节码
+		解码字节码：对每个字节码进行解析
 		:param opcode:
 		:param address:
 		:param raw_byte:
@@ -121,6 +124,8 @@ class Disassembler(object):
 		构建基本块
 		:return:
 		"""
+		# TODO:划分块的时候 会将多个 JUMPDEST 划为一块
+		logging.info("反汇编器：构建基本块")
 		header_addresses, split = set(), False
 		for address in sorted(self.bytecodes):
 			bytecode = self.bytecodes[address]
@@ -150,13 +155,14 @@ class Disassembler(object):
 		简化断言
 		:return:
 		"""
+		logging.info("反汇编器：简化断言")
 		block_ids = sorted(self.__basic_blocks.keys())
 		for i in range(len(block_ids) - 1):
 			id_0, id_1 = block_ids[i:i+2]
 			block_0 = self.__basic_blocks[id_0]
 			block_1 = self.__basic_blocks[id_1]
 			address = block_0.get_jumpi_address()
-			if address is not None and block_1.is_abort_block():
+			if address is not None and block_1.is_abort_block():  # block_1是终止块
 				block_0.insert_assert()
 
 	def debug_bytecodes(self):
@@ -164,6 +170,7 @@ class Disassembler(object):
 		debug字节码
 		:return:
 		"""
+		logging.info("反汇编器：debug字节码")
 		for block_id in self.__basic_blocks:
 			basic_block = self.__basic_blocks[block_id]
 			basic_block.debug_block()

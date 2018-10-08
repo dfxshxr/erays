@@ -1,5 +1,7 @@
-from expressions import PassExpression
+# -*- coding: utf-8 -*-
 
+from expressions import PassExpression
+import logging
 
 def get_prefix(depth):
 	return "  " * depth
@@ -7,6 +9,7 @@ def get_prefix(depth):
 
 class ExpressionBlock:
 	def __init__(self, block_id, entry_addr):
+		logging.info("表达式块初始化"+ 'block_id：{:#x} '.format(block_id)+ 'entry_addr：{:#x} '.format(entry_addr))
 		self.__block_id = block_id
 		self.__entry_address = entry_addr
 		# self.exit_stack_size = basic_block.exit_stack_size

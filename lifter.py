@@ -13,14 +13,15 @@ from instructionblock import InstructionBlock
 
 from collections import defaultdict
 import sys
-
+import logging
 
 class Lifter(GraphBuilder):
 	def __init__(self, binary):
 		"""
-		初始化
+		Lift初始化
 		:param binary:
 		"""
+		logging.info("链接器初始化")
 		GraphBuilder.__init__(self, binary)  # 图构建器
 		# for func in self.external_functions.values():
 		# 	func.visualize_function()
@@ -39,6 +40,7 @@ class Lifter(GraphBuilder):
 		标注函数边界
 		:return:
 		"""
+		logging.info("链接器：标注函数边界")
 		# TODO: extend to include undetected callers ?
 		# maps callee_pair (callee_entry, callee_exit) to caller_pairs
 		self.__callee_pairs = dict()
@@ -63,6 +65,7 @@ class Lifter(GraphBuilder):
 		创建内部函数
 		:return:
 		"""
+		logging.info("链接器：创建内部函数")
 		self.internal_functions = dict()
 		for callee_pair, caller_pairs in self.__callee_pairs.items():
 			# print(caller_pairs)
@@ -119,6 +122,7 @@ class Lifter(GraphBuilder):
 		# 约化/还原函数
 		:return:
 		"""
+		logging.info("链接器：约化/还原函数")
 		for func in self.get_all_functions():
 			self.__extract_internal_calls(func)
 			entry_id = func.entry_id
@@ -144,6 +148,7 @@ class Lifter(GraphBuilder):
 		:param func:
 		:return:
 		"""
+		logging.info("链接器：提取内部调用")
 		callee_pairs = self.__get_present_pairs(func)
 		# print(callee_pairs)
 		for callee_pair, caller_pairs in callee_pairs.items():
@@ -158,6 +163,7 @@ class Lifter(GraphBuilder):
 		:param func:
 		:return:
 		"""
+		logging.info("链接器：得到present对")
 		graph = func.graph
 		callee_pairs = dict()
 		for callee_pair, caller_pairs in self.__callee_pairs.items():
@@ -191,7 +197,7 @@ class Lifter(GraphBuilder):
 		:param func:
 		:return:
 		"""
-
+		logging.info("链接器：链接函数")
 		for block in func.graph:
 			str_id = block.get_id()
 			stack_size = set()
@@ -211,6 +217,7 @@ class Lifter(GraphBuilder):
 		:param stack_size:
 		:return:
 		"""
+		logging.info("链接器：链接字节码块")
 		entry_addr = block.get_entry_address()
 		new_block = InstructionBlock(block.get_id(), entry_addr)
 		for bytecode in block:
@@ -350,6 +357,6 @@ if __name__ == "__main__":
 	a = Lifter(line)
 
 	if "-v" in sys.argv:
-		a.visualize_contract()
+		a.visualize_contract("2.Lifter.pdf")
 	if "-d" in sys.argv:
 		a.debug_functions()

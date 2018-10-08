@@ -9,7 +9,7 @@ from resolver import BasicResolver
 
 
 import sys, os
-
+import logging
 FALLBACK_SIGNATURE = 0xffffffff
 
 
@@ -22,6 +22,7 @@ class GraphBuilder(Disassembler):
 		图像生成器初始化
 		:param binary:
 		"""
+		logging.info("图像生成器初始化")
 		Disassembler.__init__(self, binary)
 		self.__init_resolver()
 		# initial build of graph
@@ -40,6 +41,7 @@ class GraphBuilder(Disassembler):
 		初始化解析器
 		:return:
 		"""
+		logging.info("图像生成器：解析器初始化")
 		self.resolver = BasicResolver(self.jump_dests)
 		for block in self.get_blocks().values():
 			exit_bytecode = block.get_exit_bytecode()
@@ -56,6 +58,7 @@ class GraphBuilder(Disassembler):
 		:param blocks:
 		:return:
 		"""
+		logging.info("图像生成器：构建图像")
 		interpreter = BasicInterpreter(blocks, self.resolver)
 		self.graph, self.tracker = \
 			interpreter.explore_control_flow_graph(0, Image(-1))
@@ -103,6 +106,7 @@ class GraphBuilder(Disassembler):
 		标记签名块
 		:return:
 		"""
+		logging.info("图像生成器：标记签名块")
 		self.__signature_blocks = dict()
 		for block in self.graph.get_blocks().values():
 			signature = block.get_function_signature()
@@ -114,6 +118,7 @@ class GraphBuilder(Disassembler):
 		创建外部函数
 		:return:
 		"""
+		logging.info("图像生成器：循环创建外部函数")
 		self.external_functions = dict()
 		for cur_id, signature in self.__signature_blocks.items():
 			func = self.__create_external_function(cur_id, signature)
@@ -127,6 +132,7 @@ class GraphBuilder(Disassembler):
 		:param signature:
 		:return:
 		"""
+		logging.info("图像生成器：创建外部函数："+'cur_id：{:#x} '.format(cur_id)+'signature:{:#x}'.format(signature))
 		entry_ids = self.graph.get_successor_ids(cur_id)
 		entry_id = max([int(i) for i in entry_ids])
 
@@ -143,6 +149,7 @@ class GraphBuilder(Disassembler):
 		创建回调函数
 		:return:
 		"""
+		logging.info("图像生成器：创建回调函数")
 		if len(self.__signature_blocks) == 0:
 			func = ExternalFunction(FALLBACK_SIGNATURE, self.graph, self.tracker, (0, None))
 			self.external_functions[FALLBACK_SIGNATURE] = func
@@ -166,17 +173,19 @@ class GraphBuilder(Disassembler):
 		:param program_counters:
 		:return:
 		"""
+		logging.info("图像生成器：验证执行路径")
 		path = self.get_block_trace(program_counters)
 		# print(path)
 		self.graph.validate_path_exists(path)
 
-	def visualize_contract(self, out_file="out_contract"):
+	def visualize_contract(self, out_file="1.GraphBuilder.pdf"):
 		"""
 		可视化合约
 		:param out_file:
 		:return:
 		"""
-		self.graph.visualize("temp/temp.dot")
+		logging.info("图像生成器：画图")
+		self.graph.visualize_contract_dot("temp/temp.dot",out_file)
 		os.system("dot -Tpdf temp/temp.dot -o %s" % out_file)
 
 	def debug_function_bytecodes(self):
@@ -197,6 +206,6 @@ if __name__ == "__main__":
 	a = GraphBuilder(line)
 
 	if "-v" in sys.argv:
-		a.visualize_contract()
+		a.visualize_contract("1.GraphBuilder.pdf")
 	if "-d" in sys.argv:
 		a.debug_function_bytecodes()

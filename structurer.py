@@ -4,7 +4,7 @@ from aggregator import Aggregator
 from structures import *
 
 import sys
-
+import logging
 
 class Structurer(Aggregator):
 	"""构建器"""
@@ -13,6 +13,7 @@ class Structurer(Aggregator):
 		构建器初始化
 		:param binary:字节码
 		"""
+		logging.info("构建器初始化")
 		Aggregator.__init__(self, binary)  # 聚合初始化
 		for func in self.get_all_functions():  # 遍历函数
 			self.__analyze_function(func)
@@ -23,6 +24,7 @@ class Structurer(Aggregator):
 		:param func:函数
 		:return:
 		"""
+		logging.info("构建器：分析函数开始："+'{:#x}'.format(func.signature))
 		# if func.signature != 0xd9f5aed:  # mixGenes(uint256,uint256,uint256)
 		# 	return
 		# func.visualize_function()
@@ -49,6 +51,7 @@ class Structurer(Aggregator):
 		:param graph:图
 		:return:Boolean
 		"""
+		logging.info("构建器：有间接跳转")
 		indirect_jumps = set()
 		for block in graph:
 			block_id = block.get_id()
@@ -64,6 +67,7 @@ class Structurer(Aggregator):
 		:param graph: 图
 		:return:
 		"""
+		logging.info("构建器：匹配结构体")
 		if not graph.has_block(block_id):
 			return
 		original_id, cur_id = block_id, -1
@@ -81,6 +85,7 @@ class Structurer(Aggregator):
 		:param graph:
 		:return:
 		"""
+		logging.info("构建器：匹配序列")
 		sequence = [a0]
 		prev_id = a0
 		while True:
@@ -115,6 +120,7 @@ class Structurer(Aggregator):
 		:param graph:
 		:return:
 		"""
+		logging.info("构建器：匹配 ifthen")
 		suc_ids = graph.get_dual_successors(a0)
 		if suc_ids is None:
 			return a0
@@ -138,6 +144,7 @@ class Structurer(Aggregator):
 		:param graph:
 		:return:
 		"""
+		logging.info("构建器：匹配 ifthenelse")
 		suc_ids = graph.get_dual_successors(a0)
 		if suc_ids is None:
 			return a0
@@ -164,6 +171,7 @@ class Structurer(Aggregator):
 		:param graph:
 		:return:
 		"""
+		logging.info("构建器：匹配循环")
 		suc_ids = graph.get_dual_successors(a0)
 		if suc_ids is None:
 			return a0
@@ -187,11 +195,15 @@ class Structurer(Aggregator):
 		函数可视化
 		:return:
 		"""
+		logging.info("构建器：函数可视化")
 		for func in self.get_all_functions():
 			func.visualize_function()
 
 
 if __name__ == "__main__":
+	LOG_FORMAT = "%(filename)s:%(lineno)d %(levelname)s %(funcName)s: %(message)s"
+	logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+
 	"""程序主入口"""
 	input_file = open(sys.argv[1])
 	line = input_file.readline().strip()
@@ -201,4 +213,7 @@ if __name__ == "__main__":
 	"""将字节码读入构建器"""
 	a = Structurer(line)
 	if "-v" in sys.argv:
+		logging.info("visualize")
 		a.visualize_functions()
+	if "-v" in sys.argv:
+		a.visualize_contract("5.Structurer.pdf")

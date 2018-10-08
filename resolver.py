@@ -1,9 +1,16 @@
+# -*- coding: utf-8 -*-
+
 from ceptions import JumpAddressError
 from ceptions import StackSizeError
 from bytecodes import *
 
 
 def unfold_constant(bytecode):
+	"""
+	不断展开
+	:param bytecode:
+	:return:
+	"""
 	if isinstance(bytecode, PushByteCode):
 		return bytecode.dependencies[0]
 	elif isinstance(bytecode, BinOpByteCode):

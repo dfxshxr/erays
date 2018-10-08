@@ -1,14 +1,18 @@
+# -*- coding: utf-8 -*-
+
 from ceptions import InternalFunctionError
 from bytecodes import *
 from opcodes import INTERNAL_RETURN_OPCODE, exit_ops
 
 import array, hashlib
 import operator
+import logging
 from copy import deepcopy
 
 
 class BytecodeBlock(object):
 	def __init__(self, block_id):
+		logging.info("字节码块：初始化" + 'block_id：{:#x} '.format(block_id))
 		self.__block_id = block_id
 		self.__items = list()
 
@@ -177,6 +181,11 @@ class BytecodeBlock(object):
 		other = BytecodeBlock(block_id)
 		other.__items = deepcopy(self.__items)
 		return other
+
+	def visualize_block(self):
+		print("\nblock_%d" % self.get_id())
+		for bytecode in self:
+			print(bytecode)
 
 	def debug_block(self, depth=0):
 		print("\nblock_%d" % self.get_id())
