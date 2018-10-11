@@ -6,3 +6,6 @@ python lifter.py temp/0x61edcdf5bb737adffe5043706e7c5bb1f1a56eea.hex -d > 1.2.li
 python optimizer.py temp/0x61edcdf5bb737adffe5043706e7c5bb1f1a56eea.hex -d > 1.3.optimizer.txt
 python aggregator.py temp/0x61edcdf5bb737adffe5043706e7c5bb1f1a56eea.hex -d > 1.4.aggregator.txt
 python structurer.py temp/0x61edcdf5bb737adffe5043706e7c5bb1f1a56eea.hex -d > 1.5.structurer.txt
+
+python graphbuilder.py temp/0x61edcdf5bb737adffe5043706e7c5bb1f1a56eea.hex -v
+python lifter.py temp/0x61edcdf5bb737adffe5043706e7c5bb1f1a56eea.hex -v
