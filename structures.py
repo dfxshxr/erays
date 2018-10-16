@@ -4,11 +4,39 @@ from instructions import to_stack_registers
 from opcodes import INTERNAL_CALL_OPCODE
 from expressionblock import ExpressionBlock
 
+import json
+import requests
 import os
 import logging
 
+
 def get_prefix(depth):
 	return "  " * depth
+
+
+def get_text_signature(signature):
+
+	if signature == 0xffffffff:
+		a = "function()"
+	else:
+
+		try:
+			payload = {'hex_signature': '{:#x}'.format(signature), 'format': 'json'}
+			r = requests.get("https://www.4byte.directory/api/v1/signatures/", params=payload, timeout=3)
+			r = json.loads(json.dumps(r.json()))
+			a = ""
+			for result in r['results']:
+				a = a + (result['text_signature']) + " "
+
+		except:  # （可以自己添加错误类型）
+			a = "Query Function TIMEOUT "
+			pass  # 这样也可以
+
+
+
+	a = a + "{:#x}".format(signature)
+
+	return a
 
 
 class ExternalFunction(object):
@@ -18,6 +46,7 @@ class ExternalFunction(object):
 	def __init__(self, signature, graph, tracker, entry_exit):
 		logging.info("结构体-外部函数初始化："+'{:#x}'.format(signature))
 		self.signature = signature
+		self.text_signature = get_text_signature(signature)
 		self.graph = graph
 		self.tracker = tracker
 		self.entry_id, self.exit_id = entry_exit
@@ -167,7 +196,7 @@ class ExternalFunction(object):
 		logging.info("结构体-外部函数：画图")
 		if not os.path.exists("temp/"):
 			os.makedirs("temp/")
-		self.graph.visualize("temp/temp.dot")
+		self.graph.visualize("temp/temp.dot", None, self.text_signature)
 		os.system("dot -Tpdf temp/temp.dot -o temp/0x%x.pdf" % self.signature)
 
 	def debug_function(self, block_id=None):
@@ -180,7 +209,7 @@ class ExternalFunction(object):
 			basic_block.debug_block(0)
 
 	def __str__(self):
-		return "function_%x" % self.signature
+		return "function_%x %s" % self.signature, self.text_signature
 
 
 class InternalFunction(ExternalFunction):

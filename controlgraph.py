@@ -467,16 +467,21 @@ class ControlGraph(object):
 		self.__allocate_id += 1
 		return self.__allocate_id
 
-	def visualize(self, file_name, interal=None):
+	def visualize(self, file_name, interal=None, text=None):
 		dot_file = open(file_name, 'w')
 		dot_file.write("digraph {\nnode [shape=rect,fontname=\"Courier\"];\n")
 		if interal:
-			dot_file.write("labelloc=\"t\";\nfontname=\"Courier\"\n")
+			dot_file.write("labelloc=\"t\";\nlabeljust=\"l\";\nfontname=\"Courier\"\n")
 			r, w = interal
 			r = "args " + " ".join(r) + "\l"
 			w = "rets " + " ".join(w) + "\l"
 
 			dot_file.write("label=\"%s\l%s\";\n" % (r, w))
+
+
+		if text:
+			dot_file.write("labelloc=\"t\";\nlabeljust=\"l\";\nfontname=\"Courier\"\n")
+			dot_file.write("label=\"%s\";\n" % text)
 
 		for cur_id in self.basic_blocks:
 			# if cur_id in self.marked_block_ids:
