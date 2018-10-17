@@ -209,13 +209,13 @@ class Aggregator(Optimizer):
 		return change
 		# block.debug_block()
 
-	def visualize_functions(self):
+	def visualize_functions(self, step):
 		"""
 		可视化功能
 		:return:
 		"""
 		for func in self.get_all_functions():
-			func.visualize_function()
+			func.visualize_function(step)
 
 
 if __name__ == "__main__":
@@ -228,4 +228,4 @@ if __name__ == "__main__":
 	if "-d" in sys.argv:
 		a.debug_functions()
 	if "-v" in sys.argv:
-		a.visualize_contract("4.Aggregator.pdf")
+		a.visualize_functions("4.Aggregator.")

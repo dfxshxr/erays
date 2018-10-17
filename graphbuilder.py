@@ -178,15 +178,15 @@ class GraphBuilder(Disassembler):
 		# print(path)
 		self.graph.validate_path_exists(path)
 
-	def visualize_contract(self, out_file="1.GraphBuilder.pdf"):
+	def visualize_contract(self, out_file=None):
 		"""
 		可视化合约
 		:param out_file:
 		:return:
 		"""
 		logging.info("图像生成器：画图")
-		self.graph.visualize_contract_dot("temp/temp.dot",out_file)
-		os.system("dot -Tpdf temp/temp.dot -o %s" % out_file)
+		self.graph.visualize_contract_dot("temp/temp.dot", out_file)
+		os.system("dot -Tpdf temp/temp.dot -o temp/%s" % out_file)
 
 	def debug_function_bytecodes(self):
 		"""
@@ -206,6 +206,7 @@ if __name__ == "__main__":
 	a = GraphBuilder(line)
 
 	if "-v" in sys.argv:
+		a.visualize_contract("0.CFG.pdf")
 		a.visualize_contract("1.GraphBuilder.pdf")
 	if "-d" in sys.argv:
 		a.debug_function_bytecodes()

@@ -7,6 +7,13 @@ SWAP_REGISTER = "$t"
 STACK_REGISTER = "$s"
 
 
+def str_hex(item):
+	try:
+		return hex(item).rstrip("L")
+	except:
+		return str(item)
+
+
 def to_stack_registers(items):
 	return [STACK_REGISTER + str(i) for i in items]
 
@@ -30,7 +37,7 @@ class Instruction:
 				self.writes[index] = new_name
 
 	def read_to_string(self, index):
-		return str(self.reads[index])
+		return str_hex(self.reads[index])
 
 	def reads_from(self, register):
 		return register in self.reads
@@ -39,10 +46,10 @@ class Instruction:
 		return register in self.writes
 
 	def reads_to_string(self):
-		return ", ".join([str(i) for i in self.reads])
+		return ", ".join([str_hex(i) for i in self.reads])
 
 	def writes_to_string(self):
-		return ", ".join([str(i) for i in self.writes])
+		return ", ".join([str_hex(i) for i in self.writes])
 
 	def get_read_registers(self):
 		return set([i for i in self.reads if isinstance(i, str)])

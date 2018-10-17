@@ -202,27 +202,27 @@ class JumpIExpression(Expression):
 
 class MstoreExpression(Expression):
 	def __str__(self):
-		return "M[%s] = %s" % (self.format_dependency(0), self.format_dependency(1))
+		return "m[%s] = %s" % (self.format_dependency(0), self.format_dependency(1))
 
 
 class SstoreExpression(Expression):
 	def __str__(self):
-		return "S[%s] = %s" % (self.format_dependency(0), self.format_dependency(1))
+		return "s[%s] = %s" % (self.format_dependency(0), self.format_dependency(1))
 
 
 class SloadExpression(Expression):
 	def format_dependencies(self, suppress):
-		return "S[%s]" % self.format_dependency(0)
+		return "s[%s]" % self.format_dependency(0)
 
 
 class MloadExpression(Expression):
 	def format_dependencies(self, suppress):
-		return "M[%s]" % self.format_dependency(0)
+		return "m[%s]" % self.format_dependency(0)
 
 
 class CallLoadExpression(Expression):
 	def format_dependencies(self, suppress):
-		return "C[%s]" % self.format_dependency(0)
+		return "c[%s]" % self.format_dependency(0)
 
 
 class SpecialExpression(Expression):

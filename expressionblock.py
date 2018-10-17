@@ -54,7 +54,7 @@ class ExpressionBlock:
 		print(prefix + "block_"+str(self.__block_id))
 		print(prefix + hex(self.get_entry_address()))
 		for i, expression in enumerate(self.__expressions):
-			print(prefix + str(i) + "\t" + str(expression).lower())
+			print(prefix + str(i) + "\t" + str(expression))
 		print("")
 
 	def get_items(self):

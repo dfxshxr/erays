@@ -192,12 +192,15 @@ class ExternalFunction(object):
 			block_hashes.append(basic_block.get_block_hash())
 		return block_hashes
 
-	def visualize_function(self):
+	def visualize_function(self, step=None):
 		logging.info("结构体-外部函数：画图")
 		if not os.path.exists("temp/"):
 			os.makedirs("temp/")
 		self.graph.visualize("temp/temp.dot", None, self.text_signature)
-		os.system("dot -Tpdf temp/temp.dot -o temp/0x%x.pdf" % self.signature)
+		if step:
+			os.system("dot -Tpdf temp/temp.dot -o temp/"+step+"0x%x.pdf" % self.signature)
+		else:
+			os.system("dot -Tpdf temp/temp.dot -o temp/0x%x.pdf" % self.signature)
 
 	def debug_function(self, block_id=None):
 		logging.info("结构体-外部函数：debug")

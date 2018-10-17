@@ -58,7 +58,7 @@ class InstructionBlock:
 		# self.debug_phi_functions()
 		print(hex(self.__entry_address))
 		for instruction in self.__instructions:
-			print(hex(instruction.address) + "\t" + str(instruction).lower())
+			print(hex(instruction.address) + "\t" + str(instruction))
 		# print(" ".join(self.exit_registers))
 
 	def get_instructions(self):
@@ -102,6 +102,13 @@ class InstructionBlock:
 		other = InstructionBlock(block_id, self.__entry_address)
 		other.__instructions = deepcopy(self.__instructions)
 		return other
+
+	def dot_format_block(self, depth=0, suppress=False):
+
+		results = []
+		for instruction in self.__instructions:
+			results.append(hex(instruction.address) + "\t" + str(instruction))
+		return "\l".join(results) + "\l"
 
 	def __iter__(self):
 		for instruction in self.__instructions:

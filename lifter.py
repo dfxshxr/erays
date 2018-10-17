@@ -347,6 +347,14 @@ class Lifter(GraphBuilder):
 			exit_id = merged[exit_id]
 		func.exit_id = exit_id
 
+	def visualize_functions(self, step):
+		"""
+		可视化功能
+		:return:
+		"""
+		for func in self.get_all_functions():
+			func.visualize_function(step)
+
 
 if __name__ == "__main__":
 	input_file = open(sys.argv[1])
@@ -357,6 +365,6 @@ if __name__ == "__main__":
 	a = Lifter(line)
 
 	if "-v" in sys.argv:
-		a.visualize_contract("2.Lifter.pdf")
+		a.visualize_functions("2.Lifter.")
 	if "-d" in sys.argv:
 		a.debug_functions()

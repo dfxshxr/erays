@@ -555,6 +555,14 @@ class Optimizer(Lifter):
 				before.add_mapping(instruction)
 		# self.__outs[block_id] = CopyState()
 
+	def visualize_functions(self, step):
+		"""
+		可视化功能
+		:return:
+		"""
+		for func in self.get_all_functions():
+			func.visualize_function(step)
+
 
 if __name__ == "__main__":
 	input_file = open(sys.argv[1])
@@ -566,4 +574,4 @@ if __name__ == "__main__":
 	if "-d" in sys.argv:
 		a.debug_functions()
 	if "-v" in sys.argv:
-		a.visualize_contract("3.Optimizer.pdf")
+		a.visualize_functions("3.Optimizer.")

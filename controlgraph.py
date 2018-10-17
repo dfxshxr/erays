@@ -489,9 +489,9 @@ class ControlGraph(object):
 			# 	dot_file.write("%d [style=filled, fillcolor=%s]\n" % (cur_id, color))
 			# else:
 			block = self.basic_blocks[cur_id]
-			label = block.dot_format_block(0).lower()
+			label = block.dot_format_block(0)
 
-			label = hex(block.get_entry_address()) + "\l--------\l"  + label
+			label = "Block_"+str(block.get_id())+"("+hex(block.get_entry_address()) + ")\l--------\l" + label
 			# print(label.lower())
 			dot_file.write(str(cur_id) + "[label=\"%s\"];\n" % label)
 			suc_ids = self.get_successor_ids(cur_id)
@@ -529,9 +529,6 @@ class ControlGraph(object):
 				for bytecode in block:
 					label = label + (str(bytecode))+"\l"
 					results.append(bytecode)
-
-			if type == "2.Lifter.pdf":
-				a=0
 
 			label = str(block.get_id()) + "("+hex(block.get_entry_address()) + ")\l--------\l" + label
 			# print(label.lower())
