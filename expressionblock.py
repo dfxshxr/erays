@@ -54,7 +54,7 @@ class ExpressionBlock:
 		print(prefix + "block_"+str(self.__block_id))
 		print(prefix + hex(self.get_entry_address()))
 		for i, expression in enumerate(self.__expressions):
-			print(prefix + hex(expression.address) + "\t" + str(expression))
+			print(prefix + str(expression))
 		print("")
 
 	def get_items(self):
@@ -72,7 +72,7 @@ class ExpressionBlock:
 		prefix = get_prefix(depth)
 		results = []
 		for expression in self.__expressions:
-			results.append(prefix + hex(expression.address) + "\t" + str(expression))
+			results.append(prefix + str(expression))
 		return "\l".join(results) + "\l"
 
 	def dot_format_if_header(self, depth):
