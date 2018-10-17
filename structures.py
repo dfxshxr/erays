@@ -207,7 +207,7 @@ class ExternalFunction(object):
 		if block_id:
 			self.graph[block_id].debug_block()
 			return
-		print("\nfunction_" + hex(self.signature))
+		print("\nfunction_" + hex(self.signature).rstrip("L"))
 		for basic_block in self.graph:
 			basic_block.debug_block(0)
 

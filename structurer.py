@@ -222,7 +222,5 @@ if __name__ == "__main__":
 	if "-v" in sys.argv:
 		logging.info("visualize")
 		a.visualize_functions()
-	if "-v" in sys.argv:
-		a.visualize_contract("5.Structurer.pdf")
 	if "-d" in sys.argv:
 		a.debug_functions()

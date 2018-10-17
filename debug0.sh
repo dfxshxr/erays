@@ -9,3 +9,6 @@ python structurer.py temp/temp2.hex -d > 0.5.structurer.txt
 
 python graphbuilder.py temp/temp2.hex -v
 python lifter.py temp/temp2.hex -v
+python optimizer.py temp/temp2.hex -v
+python aggregator.py temp/temp2.hex -v
+python structurer.py temp/temp2.hex

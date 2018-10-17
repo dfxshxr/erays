@@ -9,3 +9,6 @@ python structurer.py temp/0x61edcdf5bb737adffe5043706e7c5bb1f1a56eea.hex -d > 1.
 
 python graphbuilder.py temp/0x61edcdf5bb737adffe5043706e7c5bb1f1a56eea.hex -v
 python lifter.py temp/0x61edcdf5bb737adffe5043706e7c5bb1f1a56eea.hex -v
+python optimizer.py temp/0x61edcdf5bb737adffe5043706e7c5bb1f1a56eea.hex -v
+python aggregator.py temp/0x61edcdf5bb737adffe5043706e7c5bb1f1a56eea.hex -v
+python structurer.py temp/0x61edcdf5bb737adffe5043706e7c5bb1f1a56eea.hex
