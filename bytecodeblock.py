@@ -116,7 +116,7 @@ class BytecodeBlock(object):
 
 	def insert_assert(self):
 		jumpi_bytecode = self.__items[-1]
-		assert_bytecode = ByteCode("ASSERT", "", jumpi_bytecode.get_address(), -1)
+		assert_bytecode = ByteCode("ASSERT", "", jumpi_bytecode.get_address()-1)
 		self.insert(assert_bytecode, -2)
 		jumpi_bytecode.opcode = "JUMP"
 
