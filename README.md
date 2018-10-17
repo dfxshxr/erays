@@ -33,3 +33,22 @@ If the complain was:
 GARBAGE bytcode encountered
 ```
 Then its probably because the bytecode is added after this tool was built (or the contract is nonsense).
+
+## For debug
+Print each step output to a file
+```sh
+python disassembler.py temp/temp2.hex -d > 0.disassembler.txt
+python graphbuilder.py temp/temp2.hex -d > 1.graphbuilder.txt
+python lifter.py temp/temp2.hex -d > 2.lifter.txt
+python optimizer.py temp/temp2.hex -d > 3.optimizer.txt
+python aggregator.py temp/temp2.hex -d > 4.aggregator.txt
+python structurer.py temp/temp2.hex -d > 5.structurer.txt
+```
+Print each step output to graph
+```sh
+python graphbuilder.py temp/temp2.hex -v
+python lifter.py temp/temp2.hex -v
+python optimizer.py temp/temp2.hex -v
+python aggregator.py temp/temp2.hex -v
+python structurer.py temp/temp2.hex
+```
